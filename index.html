@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +16,9 @@ body {
 	font-family: Helvetica;
 	font-size: 12pt;
 	background: rgb(242,242,242);
+}
+.template {
+	display: none;
 }
 .screen {
 	opacity: 0;
@@ -140,6 +144,7 @@ hr {
 	</style>
 </head>
 <body>
+	
 	<style>
 </style>
 <welcome class="screen">
@@ -194,6 +199,10 @@ welcome.next = function(){
 <script>
 var owner_info = {};
 owner_info.next = function(){
+	var form = dom.owner_info.form;
+	if(form.name.value) data.name = form.name.value;
+	if(form.email.value) data.email = form.email.value;
+	
 	show_screen('business_info');
 };
 
@@ -213,14 +222,16 @@ owner_info.next = function(){
 	<div style="height:30px;"></div>
 	<form onsubmit="return false;">
 		<div class="label">Business name</div>
-		<input type="text" name="name" placeholder="Please enter your name">
+		<input type="text" name="bname" placeholder="Please enter your name">
 		<div style="height:20px;"></div>
 		
 		<div class="label">Industry</div>
 		<select name="industry" required>
 			<option value="" disabled selected>Please choose one</option>
-			<option value="food_and_bev">Food &amp; Beverage</option>
-			<option value="hacking">Hacking</option>
+			<option value="food">Food &amp; Beverage</option>
+			<option value="computers">Computers</option>
+			<option value="accounting">Accounting</option>
+			<option value="manufacturing">Manufacturing</option>
 			<option value="other">Other</option>
 		</select>
 		<div style="height:20px;"></div>
@@ -233,6 +244,10 @@ owner_info.next = function(){
 <script>
 var business_info = {};
 business_info.next = function(){
+	var form = dom.business_info.form;
+	if(form.bname.value) data.bname = form.bname.value;
+	if(form.industry.value) data.industry = form.industry.value;
+	
 	show_screen('business_loc');
 };
 
@@ -273,7 +288,7 @@ business_loc div.main {
 	
 	<form onsubmit="return false;" style="display:none;">
 		<div class="label">Zip code</div>
-		<input type="text" name="name" placeholder="Please enter your 5-digit zip code">
+		<input type="text" name="zip" placeholder="Please enter your 5-digit zip code">
 		<div style="height:20px;"></div>
 	</form>
 	
@@ -293,8 +308,9 @@ business_loc.locate = function(){
 			longitude: -77.304167
 		};
 		*/
-		//todo
-		business_loc.next();
+		data.lat = pos.coords.latitude;
+		data.lng = pos.coords.longitude;
+		business_loc.lookup(data.lat+','+data.lng);
 		
 	},function(err){
 		business_loc.no_thanks();
@@ -309,7 +325,21 @@ business_loc.no_thanks = function(){
 };
 
 business_loc.next = function(){
-	show_screen('home');
+	var form = dom.business_loc.form;
+	if(form.zip.value) data.zip = form.zip.value;
+	business_loc.lookup(data.zip);
+};
+
+business_loc.lookup = function(q){
+	dom.business_loc['div.button'].set('disabled','disabled');
+	getLoc(q,function(o){
+		dom.business_loc['div.button'].del('disabled');
+		data.zip = o.postal_code;
+		data.lat = o.lat;
+		data.lng = o.lng;
+		console.log('Data:',data);
+		show_screen('home');
+	});
 };
 
 </script>
@@ -339,30 +369,20 @@ home div.title {
 	text-transform: uppercase;
 }
 </style>
-<script>
-var home = {};
-
-home.get_greeting = function(){
-	var h = (new Date()).getHours();
-	if(h<12) return 'morning';
-	if(h<17) return 'afternoon';
-	return 'evening';
-};
-</script>
 <home class="screen">
 	<div class="main">
 		<div style="height:30px;"></div>
 		<div class="greeting">
 			Good
-			<script>document.write(home.get_greeting())</script>
-			Larry
+			<greeting></greeting>
+			<name></name>
 		</div>
 		<h1>
-			Slurrp Noodle Bar
+			<bname></bname>
 		</h1>
 		<hr>
 		<div style="height:15px;"></div>
-		<button class="main">Reset Profile</button>
+		<button class="main" onclick="home.reset()">Reset Profile</button>
 		<div style="height:10px;"></div>
 	</div>
 	<div class="sub" style="cursor:pointer;" onclick="home.risks()">
@@ -371,7 +391,13 @@ home.get_greeting = function(){
 		</div>
 		<h1>Find out what your risks are</h1>
 	</div>
-	<div class="sub">
+	<div class="sub" style="cursor:pointer;" onclick="home.suppliers()">
+		<div class="title">
+			Suppliers
+		</div>
+		<h1>Find Visa-certified suppliers for your industry</h1>
+	</div>
+	<!-- <div class="sub">
 		<div class="title">
 			Business Preparedness Test
 		</div>
@@ -382,15 +408,33 @@ home.get_greeting = function(){
 		<button class="sub">Yes</button>
 		<button class="sub">No</button>
 		<button class="sub">Not sure</button>
-	</div>
-	
+	</div> -->
 	
 </home>
 <script>
+var home = {};
+
+home.get_greeting = function(){
+	var h = (new Date()).getHours();
+	if(h<12) return 'morning';
+	if(h<17) return 'afternoon';
+	return 'evening';
+};
+home.init = function(){
+	console.log('init');
+	dom.home.name.textContent = data.name;
+	dom.home.greeting.textContent = home.get_greeting();
+	dom.home.bname.textContent = data.bname;
+};
 home.risks = function(){
 	show_screen('risk');
 };
-
+home.suppliers = function(){
+	show_screen('suppliers');
+};
+home.reset = function(){
+	show_screen('welcome');
+};
 </script>
 	<style>
 risk.screen {
@@ -479,34 +523,212 @@ div.risk > div level {
 </risk>
 <script>
 var risk = {};
-
+risk.init = function(){
+	var pos = {lat: data.lat, lng: data.lng};
+	var el = dom.risk['div.map']._target;
+	var opts = {
+		zoom: 15,
+		center: pos,
+		disableDefaultUI: true
+	};
+	risk.map = new google.maps.Map(el,opts);
+};
 risk.back = function(){
 	show_screen('home');
 };
 
-function initMap(){
-	var pos = {lat: -25.344, lng: 131.036};
-	var el = dom.risk['div.map']._target;
+</script>
+
+
+	
+	<style>
+suppliers.screen {
+	background: rgb(242,242,242,);
+	padding: 0;
+}
+suppliers div.main {
+	padding: 20px;
+}
+suppliers div.map {
+	height: 200px;
+}
+suppliers div.sub {
+	background: white;
+	padding: 20px;
+}
+suppliers div.title {
+	text-transform: uppercase;
+	font-size: 0.8em;
+	color: #777;
+	font-weight: bold;
+	padding: 10px 0 10px 0;
+}
+suppliers div.item {
+	border-bottom: 1px solid #ccc;
+	margin-left: -20px;
+	margin-right: -20px;
+	padding: 20px;
+	cursor: pointer;
+}
+suppliers div.item div.line-0 {
+	font-size: 0.7em;
+	line-height: 2em;
+	padding-bottom: 5px;
+}
+suppliers div.item div.line-0 badge {
+	min-width: 120px;
+	text-transform: uppercase;
+	background: rgb(195,195,195);
+	border-radius: 3px;
+	padding: 4px 8px 4px 8px;
+}
+suppliers div.item div.line-0 badge.disabled {
+	display: none;
+}
+suppliers div.item div.line-2 icon {
+	width: 15px;
+}
+suppliers icon.disabled {
+	color: rgb(228,228,228);;
+}
+suppliers div.item div.line-2 {
+	color: rgb(159,159,159);
+}
+suppliers div.item div.line-2 rating {
+	font-size: 0.8em;
+}
+suppliers div.item div.line-3 {
+	color: #777;
+	font-size: 0.9em;
+	line-height: 1.5em;
+}
+suppliers div.item div.line-3 address {
+	font-style: normal;
+}
+</style>
+<suppliers class="screen">
+	<div class="main">
+		<a href="#" onclick="risk.back()">
+			<icon>arrow_back_ios</icon>
+			Home
+		</a>
+		<h1>Suppliers</h1>
+	</div>
+	<div class="map"></div>
+	<div class="sub">
+		<div class="title">
+			<industry></industry>
+		</div>
+		<div class="content"></div>
+	</div>
+	<div class="template">
+		<div class="item">
+			<div class="line-0">
+				<badge class="disabled">Visa Merchant</badge>
+			</div>
+			<div class="line-1">
+				<ord></ord>.
+				<name></name>
+			</div>
+			<div class="line-2">
+				<rating></rating>
+				<stars></stars>
+			</div>
+			<div class="line-3">
+				<address></address>
+			</div>
+		</div>
+	</div>
+
+</suppliers>
+<script>
+var suppliers = {};
+suppliers.init = function(){
+	dom.suppliers.industry.textContent = data.industry;
+	
+	var pos = {lat: data.lat, lng: data.lng};
+	var el = dom.suppliers['div.map']._target;
 	var opts = {
-		zoom: 4,
+		zoom: 12,
 		center: pos,
 		disableDefaultUI: true
 	};
-	var map = new google.maps.Map(el, opts);
-	var marker = new google.maps.Marker({position: pos, map: map});
-}
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqlB_MD6aOFO_B16HrYbgmm-uyCV9cxww&callback=initMap"></script>
-
+	suppliers.map = new google.maps.Map(el,opts);
+	suppliers.info = new google.maps.InfoWindow({
+		content: ''
+	});
 	
+	dom.suppliers['div.content'].innerHTML = '';
+	getPlaces(data.industry,function(a){
+		var n = 1;
+		foreach(a,function(o){
+			var div = dom.suppliers['div.template > div.item'].clone();
+			div.ord.textContent = n;
+			div.name.textContent = o.name;
+			div.rating.textContent = o.rating;
+			div.stars.innerHTML = suppliers.stars(o.rating);
+			div.address.textContent = o.formatted_address;
+			
+			var lat = o.geometry.location.lat();
+			var lng = o.geometry.location.lng();
+			var loc = new google.maps.LatLng(lat,lng);
+			var marker = new google.maps.Marker({
+				position: loc,
+				title: o.name
+			});
+			marker.setMap(suppliers.map);
+			
+			marker.addListener('click', function() {
+				suppliers.info.setContent(o.name);
+				suppliers.info.open(suppliers.map, marker);
+			});
+			div.on('click',function(){
+				suppliers.info.setContent(o.name);
+				suppliers.info.open(suppliers.map, marker);
+			});
+			
+			div.badge.className = Math.random()>0.5?'':'disabled';
+			
+			dom.suppliers['div.content'].add(div);
+			n++;
+		});
+	});
+};
+suppliers.stars = function(rating){
+	var html = '';
+	for(var n=0;n<5;n++){
+		if(n<rating) html += '<icon>star</icon>';
+		else html += '<icon class="disabled">star</icon>';
+	}
+	
+	return html;
+};
+</script>
+
+	<div style="display:none;" class="hidden">
+		<div class="map" style="width:100px;height:100px;"></div>
+	</div>
 
 	<script>
+var data = {
+	zip: 22033, //fairfax
+	lat: 38.8525,
+	lng: -77.304167,
+	name: 'Larry',
+	email: 'larry@example.com',
+	bname: 'Slurrp Noodle Bar',
+	industry: 'food'
+};
+
 function show_screen(name){
 	dom.all('.screen',function(screen){
 		screen.style.display = 'none';
 		screen.style.opacity = 0;
 	});
 	dom[name].style.display = 'block';
+	if(window[name].init){
+		window[name].init();
+	}
 	
 	//necessary to do in timeout for some reason
 	setTimeout(function(){
@@ -520,7 +742,49 @@ show_screen('welcome');
 // show_screen('business_loc');
 // show_screen('home');
 // show_screen('risk');
+
+var gkey = 'AIzaSyBqlB_MD6aOFO_B16HrYbgmm-uyCV9cxww';
+function initMaps(){
+	console.log('Google Maps ready.');
+}
+function getLoc(q,f){
+	var url = 'https://maps.googleapis.com/maps/api/geocode/json?address='+q+'&key='+gkey;
+	req('GET',url,0,function(res){
+		var r = res.results[0];
+		if(r){
+			var o = {};
+			o.lat = r.geometry.location.lat;
+			o.lng = r.geometry.location.lng;
+			var a = r.address_components;
+			foreach(a,function(c){
+				o[c.types[0]] = c.short_name;
+			});
+			console.log(q+' => ',o);
+			if(f) f(o);
+		}
+	});
+}
+function getPlaces(topic,f){
+	/*var url = 'https://maps.googleapis.com/maps/api/place/textsearch/json?query='+zip+'%20'+topic+'&key='+gkey;
+	console.log(url);
+	req('GET',url,0,function(res){
+		console.log(res);
+	});*/
+	
+	var loc = new google.maps.LatLng(data.lat,data.lng);
+	var map = new google.maps.Map(dom['div.hidden div.map']._target, {center: loc, zoom: 15});
+	var request = {
+		location: loc,
+		radius: '500', //meters
+		query: topic
+	};
+	var service = new google.maps.places.PlacesService(map);
+	service.textSearch(request,function(r){
+		console.log(topic+' => ',r);
+		if(f) f(r);
+	});
+}
 	</script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBqlB_MD6aOFO_B16HrYbgmm-uyCV9cxww&libraries=places&callback=initMaps"></script>
 </body>
 </html>
-
