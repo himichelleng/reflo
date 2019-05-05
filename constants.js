@@ -1,4 +1,4 @@
 'use strict';
 
-module.exports.apiLoginKey = '5KP3u95bQpv';
-module.exports.transactionKey = '346HZ32z3fP4hTG2';
+module.exports.apiLoginKey = '39acLFL5T';
+module.exports.transactionKey = '728Dt4Cy4dQ87a5P';

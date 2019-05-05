@@ -11,10 +11,12 @@ var visa = new visaApi(authCredentials);
 var express = require('express');
 var app = express();
 
-// authorizeNetApi.createCustomerProfile(function(response){
-//  this.customerProfileId = response.getCustomerProfileId();
-//  this.customerProfileJson = authorizeNetApi.getCustomerProfile(this.customerProfileId, function(){});
-// });
+
+api.get('/create-profile')
+authorizeNetApi.createCustomerProfile(function(response){
+ this.customerProfileId = response.getCustomerProfileId();
+ this.customerProfileJson = authorizeNetApi.getCustomerProfile(this.customerProfileId, function(){});
+});
 
 
 app.get('/merchant-search', function (req, res) {
@@ -62,8 +64,8 @@ function getParameters(params) {
         },
         "searchOptions": {
             "matchScore": "true",
-            // "proximity": ["merchantName"],
-            // "wildCard": ["merchantName"],
+            "proximity": ["merchantName"],
+            "wildCard": ["merchantName"],
             "maxRecords": "5",
             "matchIndicators": "true"
         },
