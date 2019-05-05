@@ -18,7 +18,7 @@ var app = express();
 
 
 app.get('/merchant-search', function (req, res) {
-    req.params = {"merchantName":"STARBUCKS","zipCode":"94127"};
+    // req.params = {"merchantName":"STARBUCKS","zipCode":"94127"};
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
     //res.send("Hello World");
