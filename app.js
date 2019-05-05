@@ -12,11 +12,11 @@ var express = require('express');
 var app = express();
 
 
-api.get('/create-profile')
-authorizeNetApi.createCustomerProfile(function(response){
- this.customerProfileId = response.getCustomerProfileId();
- this.customerProfileJson = authorizeNetApi.getCustomerProfile(this.customerProfileId, function(){});
-});
+// api.get('/create-profile')
+// authorizeNetApi.createCustomerProfile(function(response){
+//  this.customerProfileId = response.getCustomerProfileId();
+//  this.customerProfileJson = authorizeNetApi.getCustomerProfile(this.customerProfileId, function(){});
+// });
 
 
 app.get('/merchant-search', function (req, res) {
