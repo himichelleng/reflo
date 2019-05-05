@@ -21,6 +21,7 @@ app.get('/merchant-search', function (req, res) {
     // req.params = {"merchantName":"STARBUCKS","zipCode":"94127"};
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     //res.send("Hello World");
     var merchantData;
     visa.merchantSearch(getParameters(req.params))
