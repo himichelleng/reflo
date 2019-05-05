@@ -19,6 +19,7 @@
   "dependencies": {
     "authorizenet": "^1.0.7",
     "chai": "^4.2.0",
+    "express": "^4.16.4",
     "fs": "0.0.1-security",
     "q": "^1.5.1",
     "randomstring": "^1.1.5",
