@@ -18,13 +18,13 @@ var app = express();
 
 
 app.get('/merchant-search', function (req, res) {
-    // req.params = {"merchantName":"STARBUCKS","zipCode":"94127"};
+    // req.query = {"merchantName":"STARBUCKS","zipCode":"94127"};
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Access-Control-Allow-Origin', '*');
     //res.send("Hello World");
     var merchantData;
-    visa.merchantSearch(getParameters(req.params))
+    visa.merchantSearch(getParameters(req.query))
     .then(function(result) {
         // Put your custom logic here
         console.log('\n Response: ' + JSON.stringify(result.response));
