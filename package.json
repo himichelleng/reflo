@@ -17,6 +17,12 @@
   },
   "homepage": "",
   "dependencies": {
-    "authorizenet": "^1.0.7"
+    "authorizenet": "^1.0.7",
+    "chai": "^4.2.0",
+    "fs": "0.0.1-security",
+    "q": "^1.5.1",
+    "randomstring": "^1.1.5",
+    "request": "^2.88.0",
+    "visa-sdk": "0.0.2"
   }
 }
