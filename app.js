@@ -69,8 +69,8 @@ function getParameters(params) {
         },
         "searchAttrList": {
             "merchantPostalCode": params.zipCode,
-            "merchantCity": "SAN FRANCISCO",
-            "merchantState": "CA",
+            // "merchantCity": "SAN FRANCISCO",
+            // "merchantState": "CA",
             "merchantName": params.merchantName,
             "merchantCountryCode": "840"
         }
